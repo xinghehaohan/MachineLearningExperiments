@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSV to Text</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+</head>
+<body>
+    <input type="file" id="csvFile" accept=".csv" />
+    <button onclick="convertToText()">Convert to Text and Download</button>
+    <script>
+        function convertToText() {
+            const file = document.getElementById('csvFile').files[0];
+            const fileName = file.name.split('.')[0] + '.txt';
+            Papa.parse(file, {
+                header: true,
+                complete: function(results) {
+                    let textContent = results.data.map(row => `${row.title}\n${row.content}`).join('\n\n');
+                    download(fileName, textContent);
+                }
+            });
+        }
+
+        function download(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+    </script>
+</body>
+</html>

@@ -7,3 +7,4 @@ wordcloud
 gensim
 nltk
 requests
+squarify

@@ -14,6 +14,9 @@ import gensim.corpora as corpora
 from gensim.models.ldamodel import LdaModel
 # import requests
 import random
+import squarify  # pip install squarify
+import colorsys
+
 
 # 加载数据
 csv_file_path = './user/6538187047_wind-in-the-willows.csv'
@@ -40,8 +43,8 @@ all_contents = []
         
 # 字体链接（思源宋体）
 font_url = 'https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SimplifiedChinese/SourceHanSansSC-Regular.otf'
-df = pd.read_csv('save/merged_contents.csv')
-# df = pd.read_csv(csv_file_path)
+# df = pd.read_csv('save/merged_contents.csv')
+df = pd.read_csv(csv_file_path)
 
 
 custom_stop_words =[  "不是","原图", "曾经", "呕", "归", "而已", "同时", "把", "随", "丰富", "举行", "仍然", "或者", "变成", "良好", "这儿", "现在", "该", "具体说来", "有利", "最后", "设使", "看来", "故此", "问题", "全部", "吗", "各级", "可", "双方", "进行", "需要", "得", "每个", "咋", "自从", "并", "及时", "毫不", "紧接着", "可能", "允许", "知道", "不得", "掌握", "哪里", "不能", "哎", "有点", "倘然", "能够", "望", "着呢", "彼", "之前", "一起", "所谓", "假若", "里面", "不会", "怎", "你", "您", "好象", "欢迎", "因而", "有些", "强烈", "除", "表明", "嘻", "为什麽", "今年", "大力", "然而", "比较", "况且", "岂但", "即令", "哪天", "其次", "朝", "主要", "继而", "认为", "们", "何时", "别人",
@@ -1019,15 +1022,45 @@ def display_topics(model, feature_names, no_top_words):
 
 display_topics(lda_model, lda_feature_names, no_top_words=10)
 
-# 生成丰富多彩的颜色
 def random_color_func(word=None, font_size=None, position=None, orientation=None, font_path=None, random_state=None):
-    h = random.randint(0, 360)  # 随机色相
-    s = random.randint(60, 100)  # 饱和度
-    l = random.randint(40, 80)  # 亮度
-    return f"hsl({h}, {s}%, {l}%)"
+    """Generate aesthetically pleasing colors in RGB format."""
+    # 色调: 0-360度中的随机值，代表颜色的种类
+    # 饱和度: 0.5-1.0的范围内，高饱和度意味着颜色更纯
+    # 亮度: 0.3-0.7的范围内，避免过于明亮或过于暗淡
+    hue = random.randint(0, 360)
+    saturation = random.uniform(0.5, 1.0)
+    lightness = random.uniform(0.3, 0.7)
+
+    # 将HSL颜色转换为RGB格式
+    rgb_color = colorsys.hls_to_rgb(hue/360.0, lightness, saturation)
+
+    return rgb_color
 
 # 数据可视化
 # 词云
+# 1 treemap
+def plot_treemap(word_freq,font_path):
+    # 准备数据
+    words = list(word_freq.keys())
+    frequencies = list(word_freq.values())
+    print(words)
+   # 创建颜色列表
+    colors = [random_color_func() for _ in range(len(words))]
+    # 创建树图
+    plt.figure(figsize=(12, 7))
+    squarify.plot(sizes=frequencies, label=words, color=colors, alpha=0.6)
+
+    # 设置标题和显示图表
+    plt.title('Treemap of Word Frequencies')
+    plt.axis('off')
+    # 添加中文词频信息
+    for word, freq in word_freq.items():
+        plt.text(0, 0, f"{word}: {freq}", fontsize=12, color="white")
+    plt.show()
+
+# 用实际的数据调用函数绘制树图
+# plot_treemap(dict(top_words),font_path)
+
 def plot_wordcloud(word_freq,font_path):
     wordcloud = WordCloud(width=1000, height=800, background_color='white',font_path=font_path,color_func=random_color_func, collocations=False)
     wordcloud.generate_from_frequencies(word_freq)
